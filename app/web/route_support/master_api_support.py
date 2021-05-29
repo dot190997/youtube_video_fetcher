@@ -13,6 +13,7 @@ class MasterAPISupport(metaclass=Singleton):
         self._index_collection = self._config.YOUTUBE_MONGO.INDEX_COLLECTION
 
     def fetch_paginated_videos(self, page_number=0):
+        # Simple mongo query to get all the videos with given page_number (default: 0)
         query = {'page': int(page_number)}
         records_cursor = self._mongo_client.fetch_all_records(self._db_name, self._video_collection, query=query)
         records = []
@@ -21,6 +22,7 @@ class MasterAPISupport(metaclass=Singleton):
         return records
 
     def get_videos_by_title(self, query, query_type):
+        # Getting matched records for hashed query and checking if query matches with title/description
         hash_string = str(get_hash_value(clean_string5(query)))
         records = self._mongo_client.fetch_all_records(self._db_name, self._video_collection,
                                                        query={'{}_hash'.format(query_type): hash_string})
@@ -32,8 +34,10 @@ class MasterAPISupport(metaclass=Singleton):
     def get_videos_for_query(self, query, top_results=5, query_type='query'):
         if query_type in ['description', 'title']:
             return self.get_videos_by_title(query, query_type)
+        # Getting relevant words from query
         relevant_word_list = get_relevant_word_list(query)
         video_id_to_match_word_length = dict()
+        # Getting video_ids for extracted words
         for word in relevant_word_list:
             record = self._mongo_client.fetch_single_record(self._db_name, self._index_collection, query={'index_word': word})
             if not record:
@@ -43,7 +47,9 @@ class MasterAPISupport(metaclass=Singleton):
                 video_id_to_match_word_length[video_id] += 1
         relevant_video_ids = []
         if top_results:
+            # Giving scores to video_ids based on number of matched words
             relevant_sorted_ids = sorted(video_id_to_match_word_length.items(), key=lambda x: x[1], reverse=True)
+            # Keeping on given video ids
             id_count = min(int(top_results), len(relevant_sorted_ids))
             for relevant_id_pair in relevant_sorted_ids[:id_count]:
                 relevant_video_ids.append(relevant_id_pair[0])
@@ -51,6 +57,7 @@ class MasterAPISupport(metaclass=Singleton):
             relevant_video_ids = list(video_id_to_match_word_length.keys())
 
         final_records = []
+        # Querying for video data in mongo
         for video_id in relevant_video_ids:
             record = self._mongo_client.fetch_single_record(self._db_name, self._video_collection, query={'video_id': video_id})
             if not record:

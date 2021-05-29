@@ -8,6 +8,8 @@ from utils.util import get_logger
 class YoutubeFootball(Youtube, metaclass=Singleton):
     def __init__(self):
         super().__init__()
+        # Child class of Youtube. Sets query as football.
+        # Setting last_fetched_time as whatever was the last football video fetched, else None
         self._last_fetched_time = self.get_last_fetched_time('football')
 
     @retry(Exception, tries=len(Youtube().get_all_api_keys()), logger=get_logger('mismatch'), fallback_func=Youtube().build_client_with_new_api_key)

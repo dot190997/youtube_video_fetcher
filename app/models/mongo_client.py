@@ -64,9 +64,9 @@ class MyMongoClient(metaclass=Singleton):
         except Exception as exc:
             print("Exception in insert one: ", collection, str(exc))
         try:
-            print("Executing bulk metrics...")
+            # print("Executing bulk metrics...")
             bulk_metrics.execute()
-            print("Bulk metrics executed")
+            # print("Bulk metrics executed")
         except Exception as exc:
             print("Exception in bulk update exec: ", collection, str(exc))
 

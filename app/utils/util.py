@@ -12,6 +12,8 @@ import difflib
 import hashlib
 from concurrent.futures import ThreadPoolExecutor
 
+""" This file contains all the utility functions that can be used in mulitple parts of the project """
+
 STOP_WORDS = set(stopwords.words('english'))
 COMMON_WORDS = {'the', 'of', 'a', 'and', 'or', 'for', 'as', 'an', 'to', 'in', 'this', 'be', 'any', 'with'}
 STOP_WORDS.update(COMMON_WORDS)
@@ -86,6 +88,7 @@ def get_initial_set_field(value, _type):
 
 
 def write_api_logs(request, response):
+    """ Logging all the API requests and responses """
     url = request.url
     method = request.method
     if method == 'POST':
@@ -105,6 +108,7 @@ def get_date(normalized=True):
 
 
 def get_relevant_word_list(text, reduce=True, normalise=True, lemmatization=True):
+    """ normalising the input string, lemmatizing for removing redundancy and removing stop words """
     if normalise:
         text = clean_string5(text, tokenize=True)
         text = text.replace('_', ' ').lower()
@@ -146,54 +150,3 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
-
-
-def merge_attribute_values(original_value, current_value):
-    if original_value is None and current_value is None:
-        return None
-    if original_value is not None and current_value is None:
-        return original_value
-    if original_value is None:
-        return copy.deepcopy(current_value)
-    if isinstance(original_value, str):
-        if isinstance(current_value, str):
-            if original_value == current_value:
-                return original_value
-            temp = set()
-            temp.add(original_value)
-            temp.add(current_value)
-            return temp
-        if isinstance(current_value, set):
-            temp = set()
-            temp.add(original_value)
-            temp.update(current_value)
-            return temp
-        if isinstance(current_value, list):
-            current_value.append(original_value)
-        if isinstance(current_value, dict):
-            return copy.deepcopy(current_value)
-
-    if isinstance(original_value, dict):
-        if isinstance(current_value, dict):
-            for key in current_value:
-                if key not in original_value:
-                    original_value[key] = current_value[key]
-                elif type(original_value[key]) in {list, set} and type(current_value[key]) in {list, set}:
-                    original_value[key] = merge_attribute_values(original_value[key], current_value[key])
-        return original_value
-
-    if isinstance(original_value, set):
-        original_value = set(original_value)
-        if isinstance(current_value, str):
-            original_value.add(current_value)
-        elif isinstance(current_value, set) or isinstance(current_value, list):
-            original_value.update(current_value)
-        return original_value
-
-    if isinstance(original_value, list):
-        if isinstance(current_value, list) or isinstance(current_value, set):
-            for val in current_value:
-                original_value.append(val)
-        elif isinstance(current_value, str):
-            original_value.append(current_value)
-        return original_value

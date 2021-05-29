@@ -97,11 +97,3 @@ class Youtube:
         for word in word_list:
             self._mongo_client.update_record(self._db_name, self._index_collection, {'index_word': word},
                                              {'$addToSet': {'video_ids': video_id}})
-
-
-def refresh_youtube_client():
-    Youtube().build_client_with_new_api_key()
-
-
-def get_max_retries_count():
-    return len(Youtube().get_all_api_keys())

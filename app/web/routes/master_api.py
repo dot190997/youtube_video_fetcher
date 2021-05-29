@@ -14,6 +14,7 @@ def healthcheck():
 
 @routes.route('/get_paginated_data', methods=['GET'])
 def get_paginated_data():
+    # Acceptable values for page: non-negative integers
     page = request.args.get('page') or 0
     final_result = {'success': True}
     result = None
@@ -32,7 +33,9 @@ def get_paginated_data():
 @routes.route('/get_videos_for_query', methods=['GET'])
 def get_videos_for_query():
     query = request.args.get('query')
+    # Acceptable values for query_type: ["query", "title", "description"]
     query_type = request.args.get('query_type') or 'query'
+    # Acceptable values for top_results: positive integers
     top_results = request.args.get('top_results') or 5
     final_result = {'success': True}
     result = None

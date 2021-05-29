@@ -18,16 +18,19 @@ def start_server():
 
 
 def fetch_videos_continuously():
+    # function call to fetch youtube videos every few seconds
     from services.youtube_fetcher_football import YoutubeFootball
     while True:
         YoutubeFootball().fetch_videos()
-        time.sleep(10)
+        time.sleep(Config.get_instance().ASYNC_INTERVAL)
 
 
 def main(config_file_path):
     Config(config_file_path)
     nltk_downloads()
-    run_io_tasks_in_parallel([fetch_videos_continuously, start_server])
+    # Running server and video fetcher in parallel threads
+    # run_io_tasks_in_parallel([fetch_videos_continuously, start_server])
+    fetch_videos_continuously()
 
 
 if __name__ == '__main__':
