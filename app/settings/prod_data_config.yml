@@ -1,0 +1,27 @@
+# Mongo credentials
+MONGO:
+  USER:
+  PASSWORD:
+  SERVER:
+  PORT: 27017
+
+# Server details
+APP_SERVER:
+  HOST: 0.0.0.0
+  PORT: 9300
+
+
+YOUTUBE:
+  FETCH_API: https://www.googleapis.com/youtube/v3/search
+  API_VERSION: v3
+  API_KEYS: []
+
+YOUTUBE_MONGO:
+  DB_NAME:
+  VIDEO_COLLECTION:
+  INDEX_COLLECTION:
+
+
+ASYNC_INTERVAL: 10*1000
+PROCESS_COUNT: 10
+MULTIPROCESSING: True
