@@ -2,8 +2,9 @@ from settings.data_config import Config
 import argparse
 from flask import Flask
 from web.routes import routes
-from services.youtube_fetcher_football import YoutubeFootball
 import nltk
+import time
+from utils.util import run_io_tasks_in_parallel
 
 
 def nltk_downloads():
@@ -11,16 +12,22 @@ def nltk_downloads():
 
 
 def start_server():
-    app = Flask(__name__, static_url_path='/fam_pay', static_folder='static')
-    app.register_blueprint(routes, url_prefix='/fam_pay')
-    app.run(debug=True, host=Config.get_instance().APP_SERVER.HOST, port=Config.get_instance().APP_SERVER.PORT)
+    app = Flask(__name__, static_url_path='/youtube_video_fetcher', static_folder='static')
+    app.register_blueprint(routes, url_prefix='/youtube_video_fetcher')
+    app.run(debug=False, host=Config.get_instance().APP_SERVER.HOST, port=Config.get_instance().APP_SERVER.PORT)
+
+
+def fetch_videos_continuously():
+    from services.youtube_fetcher_football import YoutubeFootball
+    while True:
+        YoutubeFootball().fetch_videos()
+        time.sleep(10)
 
 
 def main(config_file_path):
     Config(config_file_path)
     nltk_downloads()
-    YoutubeFootball().fetch_videos()
-    start_server()
+    run_io_tasks_in_parallel([fetch_videos_continuously, start_server])
 
 
 if __name__ == '__main__':

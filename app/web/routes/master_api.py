@@ -2,6 +2,7 @@ from . import routes
 from flask import redirect
 from flask import render_template
 from flask import request
+import flask
 from web.route_support.master_api_support import *
 from utils.util import write_api_logs
 
@@ -25,7 +26,7 @@ def get_paginated_data():
     finally:
         final_result.setdefault('result', result)
     write_api_logs(request, final_result)
-    return final_result
+    return flask.jsonify(final_result)
 
 
 @routes.route('/get_videos_for_query', methods=['GET'])
@@ -44,4 +45,4 @@ def get_videos_for_query():
     finally:
         final_result.setdefault('result', result)
     write_api_logs(request, final_result)
-    return final_result
+    return flask.jsonify(final_result)

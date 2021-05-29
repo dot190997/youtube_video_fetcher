@@ -10,6 +10,7 @@ from nltk.stem import WordNetLemmatizer
 from services.logger import get_logger
 import difflib
 import hashlib
+from concurrent.futures import ThreadPoolExecutor
 
 STOP_WORDS = set(stopwords.words('english'))
 COMMON_WORDS = {'the', 'of', 'a', 'and', 'or', 'for', 'as', 'an', 'to', 'in', 'this', 'be', 'any', 'with'}
@@ -17,8 +18,15 @@ STOP_WORDS.update(COMMON_WORDS)
 lemmatizer = WordNetLemmatizer()
 
 
+def run_io_tasks_in_parallel(tasks):
+    with ThreadPoolExecutor() as executor:
+        running_tasks = [executor.submit(task) for task in tasks]
+        for running_task in running_tasks:
+            running_task.result()
+
+
 def get_hash_value(input_string):
-    hashlib.md5(input_string.encode('utf-8')).hexdigest()
+    return hashlib.md5(input_string.encode('utf-8')).hexdigest()
 
 
 def query_comparator(query1, query2):
@@ -79,7 +87,6 @@ def get_initial_set_field(value, _type):
 
 def write_api_logs(request, response):
     url = request.url
-    url = url.split('nucleus-api')[1]
     method = request.method
     if method == 'POST':
         data = str(request.data)

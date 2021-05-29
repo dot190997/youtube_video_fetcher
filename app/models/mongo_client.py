@@ -21,15 +21,12 @@ class MyMongoClient(metaclass=Singleton):
         records = None
         client = self.__instance
         try:
+            query = query or {}
+            projection = projection or {'_id': 0}
             if limit is None:
-                if query is not None:
-                    records = client[database][collection].find(query)
-                elif projection is not None:
-                    records = client[database][collection].find({}, projection)
-                else:
-                    records = client[database][collection].find({}, {'_id': 0})
+                records = client[database][collection].find(query, projection)
             else:
-                records = client[database][collection].find({}, {'_id': 0}).limit(limit)
+                records = client[database][collection].find(query, projection).limit(limit)
         except Exception as e:
             print(e)
             sys.exit(1)
@@ -39,15 +36,12 @@ class MyMongoClient(metaclass=Singleton):
         record = None
         client = self.__instance
         try:
+            query = query or {}
+            projection = projection or {'_id': 0}
             if limit is None:
-                if query is not None:
-                    record = client[database][collection].find_one(query)
-                elif projection is not None:
-                    record = client[database][collection].find_one({}, projection)
-                else:
-                    record = client[database][collection].find_one({}, {'_id': 0})
+                record = client[database][collection].find_one(query, projection)
             else:
-                record = client[database][collection].find_one({}, {'_id': 0}).limit(limit)
+                record = client[database][collection].find_one(query, projection).limit(limit)
         except Exception as e:
             print(e)
             sys.exit(1)
@@ -69,7 +63,6 @@ class MyMongoClient(metaclass=Singleton):
                 bulk_metrics.insert(document)
         except Exception as exc:
             print("Exception in insert one: ", collection, str(exc))
-
         try:
             print("Executing bulk metrics...")
             bulk_metrics.execute()

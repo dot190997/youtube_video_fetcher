@@ -13,18 +13,20 @@ class MasterAPISupport(metaclass=Singleton):
         self._index_collection = self._config.YOUTUBE_MONGO.INDEX_COLLECTION
 
     def fetch_paginated_videos(self, page_number=0):
-        query = {'page': page_number}
-        records = self._mongo_client.fetch_all_records(self._db_name, self._video_collection, query=query)
+        query = {'page': int(page_number)}
+        records_cursor = self._mongo_client.fetch_all_records(self._db_name, self._video_collection, query=query)
+        records = []
+        for record in records_cursor:
+            records.append(record)
         return records
 
     def get_videos_by_title(self, query, query_type):
-        hash_string = get_hash_value(clean_string5(query))
+        hash_string = str(get_hash_value(clean_string5(query)))
         records = self._mongo_client.fetch_all_records(self._db_name, self._video_collection,
                                                        query={'{}_hash'.format(query_type): hash_string})
-        matched_record = None
         for record in records:
             if clean_string5(query) in [clean_string5(record['title']), clean_string5(record['description'])]:
-                return [matched_record]
+                return [record]
         return []
 
     def get_videos_for_query(self, query, top_results=5, query_type='query'):
@@ -42,7 +44,7 @@ class MasterAPISupport(metaclass=Singleton):
         relevant_video_ids = []
         if top_results:
             relevant_sorted_ids = sorted(video_id_to_match_word_length.items(), key=lambda x: x[1], reverse=True)
-            id_count = min(top_results, len(relevant_sorted_ids))
+            id_count = min(int(top_results), len(relevant_sorted_ids))
             for relevant_id_pair in relevant_sorted_ids[:id_count]:
                 relevant_video_ids.append(relevant_id_pair[0])
         else:
@@ -55,4 +57,5 @@ class MasterAPISupport(metaclass=Singleton):
                 continue
             final_records.append(record)
 
+        final_records = sorted(final_records, key=lambda x: x['publishing_time'], reverse=True)
         return final_records
