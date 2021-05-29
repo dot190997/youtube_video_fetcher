@@ -1,7 +1,7 @@
 from settings.data_config import Config
 from models.mongo_client import MyMongoClient
 from models.singleton import Singleton
-from utils.util import get_relevant_word_list
+from utils.util import get_relevant_word_list, get_hash_value, clean_string5
 
 
 class MasterAPISupport(metaclass=Singleton):
@@ -17,7 +17,19 @@ class MasterAPISupport(metaclass=Singleton):
         records = self._mongo_client.fetch_all_records(self._db_name, self._video_collection, query=query)
         return records
 
-    def get_videos_for_query(self, query, top_results=5):
+    def get_videos_by_title(self, query, query_type):
+        hash_string = get_hash_value(clean_string5(query))
+        records = self._mongo_client.fetch_all_records(self._db_name, self._video_collection,
+                                                       query={'{}_hash'.format(query_type): hash_string})
+        matched_record = None
+        for record in records:
+            if clean_string5(query) in [clean_string5(record['title']), clean_string5(record['description'])]:
+                return [matched_record]
+        return []
+
+    def get_videos_for_query(self, query, top_results=5, query_type='query'):
+        if query_type in ['description', 'title']:
+            return self.get_videos_by_title(query, query_type)
         relevant_word_list = get_relevant_word_list(query)
         video_id_to_match_word_length = dict()
         for word in relevant_word_list:

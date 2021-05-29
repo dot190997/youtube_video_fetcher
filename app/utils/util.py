@@ -9,11 +9,16 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from services.logger import get_logger
 import difflib
+import hashlib
 
 STOP_WORDS = set(stopwords.words('english'))
 COMMON_WORDS = {'the', 'of', 'a', 'and', 'or', 'for', 'as', 'an', 'to', 'in', 'this', 'be', 'any', 'with'}
 STOP_WORDS.update(COMMON_WORDS)
 lemmatizer = WordNetLemmatizer()
+
+
+def get_hash_value(input_string):
+    hashlib.md5(input_string.encode('utf-8')).hexdigest()
 
 
 def query_comparator(query1, query2):

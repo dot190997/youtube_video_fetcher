@@ -31,11 +31,12 @@ def get_paginated_data():
 @routes.route('/get_videos_for_query', methods=['GET'])
 def get_videos_for_query():
     query = request.args.get('query')
+    query_type = request.args.get('query_type') or 'query'
     top_results = request.args.get('top_results') or 5
     final_result = {'success': True}
     result = None
     try:
-        result = MasterAPISupport().get_videos_for_query(query, top_results)
+        result = MasterAPISupport().get_videos_for_query(query, top_results, query_type)
     except Exception as e:
         final_result['success'] = False
         result = {}
@@ -44,4 +45,3 @@ def get_videos_for_query():
         final_result.setdefault('result', result)
     write_api_logs(request, final_result)
     return final_result
-

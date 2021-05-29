@@ -23,7 +23,7 @@ def func_time(func):
     return wrapper_timer
 
 
-def retry(exception_to_check, tries=3, delay=4, backoff=4, logger=None):
+def retry(exception_to_check, tries=3, delay=4, backoff=2, logger=None, fallback_func=None):
     """Retry calling the decorated function using an exponential backoff.
 
     http://www.saltycrane.com/blog/2009/11/trying-out-retry-decorator-python/
@@ -40,6 +40,8 @@ def retry(exception_to_check, tries=3, delay=4, backoff=4, logger=None):
     :type backoff: int
     :param logger: logger to use. If None, print
     :type logger: logging.Logger instance
+    :param fallback_func: function to refresh state of caller function in case of exception
+    :type fallback_func: Python function
     """
 
     def deco_retry(func):
@@ -55,6 +57,8 @@ def retry(exception_to_check, tries=3, delay=4, backoff=4, logger=None):
                         logger.warning(msg)
                     else:
                         print(msg)
+                    if fallback_func is not None:
+                        fallback_func()
                     time.sleep(mdelay)
                     mtries -= 1
                     mdelay *= backoff
